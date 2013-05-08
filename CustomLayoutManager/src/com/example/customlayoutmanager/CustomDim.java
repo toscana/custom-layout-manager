@@ -86,8 +86,8 @@ public class CustomDim {
 	}
 	
 	public void enlarge(){
-		rightX++;
-		rightY++;
+		rightX+=2;
+		rightY+=2;
 	}
 
 	public void smallen() {
