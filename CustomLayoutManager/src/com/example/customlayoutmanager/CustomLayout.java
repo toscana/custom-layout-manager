@@ -208,14 +208,7 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 	}
 
 	private boolean liesWithinBoundaries(Rect tmp) {
-		// TODO Auto-generated method stub
 		int[] rightDown = getRowColPressed(this.getWidth(), this.getHeight());
-
-		Log.d("bert", "boundaries " + " 0 " + " 0 " + " " + rightDown[0] + " "
-				+ " " + rightDown[1]);
-		Log.d("bert", "componentje wordt " + tmp.left + " " + tmp.top + " "
-				+ tmp.right + " " + tmp.bottom);
-
 		return !(tmp.left < 0 || tmp.top < 0 || tmp.right > rightDown[0] || tmp.bottom > rightDown[1]);
 	}
 
@@ -227,8 +220,6 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 			Rect cd = mViewProps.get(v);
 			if (cd.left <= rowcolPressed[0] && rowcolPressed[0] <= cd.right)
 				if (cd.top <= rowcolPressed[1] && rowcolPressed[1] <= cd.bottom) {
-					// Log.d("position",
-					// "HIT HIT falls within " + mViewProps.get(v));
 					return v;
 				}
 
