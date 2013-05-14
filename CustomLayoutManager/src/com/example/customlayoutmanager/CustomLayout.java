@@ -7,19 +7,19 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.MotionEvent.PointerCoords;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.View.OnLongClickListener;
 
-public class CustomLayout extends ViewGroup implements OnLongClickListener {
+public class CustomLayout extends ViewGroup {
 
-	private static final int ROWS = 50;
-	private static final int COLS = 100;
+	private static final int ROWS = 500;
+	private static final int COLS = 1200;
 	private int mDx;
 	private int mDy;
-
-	private ScaleGestureDetector mScaleDetector;
 
 	private View mToMove = null;
 	private View mToScale = null;
@@ -31,37 +31,6 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 		super(context);
 		// TODO Auto-generated constructor stub
 		mViewProps = new HashMap<View, Rect>();
-		this.setOnLongClickListener(this);
-
-		// scale code
-		mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-	}
-
-	private class ScaleListener extends
-			ScaleGestureDetector.SimpleOnScaleGestureListener {
-		@Override
-		public boolean onScale(ScaleGestureDetector detector) {
-			float mScaleFactor = 1.f;
-			mScaleFactor *= detector.getScaleFactor();
-
-			// Don't let the object get too small or too large.
-			mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-
-			// Log.d("bert", "SCALE SCALE SCALE XXX factor " + mScaleFactor);
-			if (mScaleFactor >= 1) {
-				// enlarge
-				Rect r = mViewProps.get(mToScale);
-				mViewProps.get(mToScale).inset(-1, -1);
-				// invalidate();
-			} else {
-				// make smaller
-				Rect r = mViewProps.get(mToScale);
-				mViewProps.get(mToScale).inset(+1, +1);
-			}
-			requestLayout();
-			invalidate();
-			return true;
-		}
 	}
 
 	/*
@@ -71,7 +40,6 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
 		return true;
-
 	}
 
 	/*
@@ -90,108 +58,169 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		// movement gesture
-		int action = ev.getActionMasked();
 
-		// scaling code
-		mScaleDetector.onTouchEvent(ev);
+		int pointerCount = ev.getPointerCount();
+		if (pointerCount == 2 && mToMove != null) {
+			Log.d("bert", "pointercount is " + pointerCount);
 
-		int[] pos = getRowColPressed((int) ev.getX(), (int) ev.getY());
-		View v = getTouchedView((int) ev.getX(), (int) ev.getY());
-		
-		switch (action) {
-		case (MotionEvent.ACTION_DOWN):
-			if (v != null) {
-				v.setBackgroundColor(Color.RED);
-				mToMove = v;
-			}
+			PointerCoords p1 = new PointerCoords();
+			PointerCoords p2 = new PointerCoords();
 
-			return true;
-		case (MotionEvent.ACTION_MOVE):
+			ev.getPointerCoords(0, p1);
+			ev.getPointerCoords(1, p2);
 
-			//Log.d("bert", "Action was MOVE");
-			if (mToMove != null) {
+			Log.d("point", "first is " + p1.x + "," + p1.y);
+			Log.d("point", "second is " + p2.x + "," + p2.y);
 
-				Rect dims = mViewProps.get(mToMove);
-				int[] rowcolPressed = getRowColPressed((int) ev.getX(),(int) ev.getY());
-				//Log.d("position", "rowcol is " + rowcolPressed[0] + "x" + rowcolPressed[1]);
-				if (!mPressed) {
-					mDx = dims.left - rowcolPressed[0];
-					mDy = dims.top - rowcolPressed[1];
-					mPressed = true;
-				}
-
-				//Log.d("position", "dx" + mDx);
-				//Log.d("position", "dy" + mDy);
-
-				rowcolPressed[0] += mDx;
-				rowcolPressed[1] += mDy;
-				//Log.d("position", "going to " + rowcolPressed[0] + "," + rowcolPressed[1]);
-				
-				/*
-				 * 
-				 * start computing new center
-				 * 
-				 */
-				
-				//todo doest work when 1 size width and gheight
-				
-				Rect tomoveRect = mViewProps.get(mToMove);				
-				
-				Rect tmp = new Rect(tomoveRect);
-				tmp.offsetTo(rowcolPressed[0], rowcolPressed[1]);
-				//Log.d("bert","can be moved " + mCanBeMoved);
-				if(liesWithinBoundaries(tmp)){
-					tomoveRect.offsetTo(rowcolPressed[0], rowcolPressed[1]);
-				}
-				else{
-					if(verticalMovementPossible(tmp)){
-						tomoveRect.offsetTo(tomoveRect.left, rowcolPressed[1]);
-					}
-					else if(horizontalMovementPossible(tmp)){
-						tomoveRect.offsetTo(rowcolPressed[0], tomoveRect.top);
-					}
-						
-					}
-				
+			if (p1.x < p2.x && p1.y > p2.y) {
+				// first finger is left down, second is right up
+				Rect r = mViewProps.get(mToMove);
+				int[] leftDown = getRowColPressed((int) p1.x, (int) p1.y);
+				int[] rightUp = getRowColPressed((int) p2.x, (int) p2.y);
+				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
+				Log.d("bert", "chagend to" + leftDown[0] + " " + rightUp[1]
+						+ " " + rightUp[0] + " " + leftDown[1]);
 				this.requestLayout();
-				this.invalidate();
-
+				invalidate();
+			} else if (p1.x < p2.x && p1.y < p2.y) {
+				// first finger is left up, second finger is right down
+				Rect r = mViewProps.get(mToMove);
+				int[] leftUp = getRowColPressed((int) p1.x, (int) p1.y);
+				int[] rightDown = getRowColPressed((int) p2.x, (int) p2.y);
+				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
+				Log.d("bert", "chagned to " + leftUp[0] + " " + leftUp[1] + " "
+						+ rightDown[0] + " " + rightDown[1]);
+				this.requestLayout();
+				invalidate();
+			} else if (p1.x > p2.x && p1.y < p2.y) {
+				// first finger is right up, second finger is left down
+				Rect r = mViewProps.get(mToMove);
+				int[] rightUp = getRowColPressed((int) p1.x, (int) p1.y);
+				int[] leftDown = getRowColPressed((int) p2.x, (int) p2.y);
+				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
+				// Log.d("bert","chagned to " + leftUp[0]+" " + leftUp[1]+" " +
+				// rightDown[0]+" " + rightDown[1]);
+				this.requestLayout();
+				invalidate();
+			} else {
+				// first finger is right down, second finger is left up
+				Rect r = mViewProps.get(mToMove);
+				int[] rightDown = getRowColPressed((int) p1.x, (int) p1.y);
+				int[] leftUp = getRowColPressed((int) p2.x, (int) p2.y);
+				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
+				Log.d("bert", "chagned to " + leftUp[0] + " " + leftUp[1] + " "
+						+ rightDown[0] + " " + rightDown[1]);
+				this.requestLayout();
+				invalidate();
 			}
-			// Log.d("bert","moved to X" + ev.getX());
-			// Log.d("bert","moved to Y" + ev.getY());
-			return true;
-		case (MotionEvent.ACTION_UP):
-			//Log.d("bert", "Action was UP");
-			if (v != null)
-				v.setBackgroundColor(Color.BLACK);
-			mToMove = null;
-			mPressed = false;
-			mDx = 0;
-			mDy = 0;
-			return true;
-		case (MotionEvent.ACTION_CANCEL):
-			//Log.d("bert", "Action was CANCEL");
-			return true;
-		case (MotionEvent.ACTION_OUTSIDE):
-			//Log.d("bert", "Movement occurred outside bounds "
-					///+ "of current screen element");
 			return true;
 
-		case (MotionEvent.ACTION_POINTER_DOWN):
-			//Log.d("bert", "POINTER DOWN Action was POINTER DOWN + place is "
-					//+ ev.getX() + "," + ev.getY());
-			if (mToMove != null) {
+		} else if (pointerCount == 1) {
+
+			// movement gesture
+			int action = ev.getActionMasked();
+
+			int[] pos = getRowColPressed((int) ev.getX(), (int) ev.getY());
+			View v = getTouchedView((int) ev.getX(), (int) ev.getY());
+
+			switch (action) {
+			case (MotionEvent.ACTION_DOWN):
 				if (v != null) {
-					mToScale = v;
-					//Log.d("bert", "toscale HIT HIT HIT HIT");
+					v.setBackgroundColor(Color.RED);
+					mToMove = v;
 				}
-			}
-			return true;
-		default:
-			return super.onTouchEvent(ev);
-		}
 
+				return true;
+			case (MotionEvent.ACTION_MOVE):
+
+				// Log.d("bert", "Action was MOVE");
+				if (mToMove != null) {
+
+					Rect dims = mViewProps.get(mToMove);
+					int[] rowcolPressed = getRowColPressed((int) ev.getX(),
+							(int) ev.getY());
+					// Log.d("position", "rowcol is " + rowcolPressed[0] + "x" +
+					// rowcolPressed[1]);
+					if (!mPressed) {
+						mDx = dims.left - rowcolPressed[0];
+						mDy = dims.top - rowcolPressed[1];
+						mPressed = true;
+					}
+
+					// Log.d("position", "dx" + mDx);
+					// Log.d("position", "dy" + mDy);
+
+					rowcolPressed[0] += mDx;
+					rowcolPressed[1] += mDy;
+					// Log.d("position", "going to " + rowcolPressed[0] + "," +
+					// rowcolPressed[1]);
+
+					/*
+					 * 
+					 * start computing new center
+					 */
+
+					// todo doest work when 1 size width and gheight
+
+					Rect tomoveRect = mViewProps.get(mToMove);
+
+					Rect tmp = new Rect(tomoveRect);
+					tmp.offsetTo(rowcolPressed[0], rowcolPressed[1]);
+					// Log.d("bert","can be moved " + mCanBeMoved);
+					if (liesWithinBoundaries(tmp)) {
+						tomoveRect.offsetTo(rowcolPressed[0], rowcolPressed[1]);
+					} else {
+						if (verticalMovementPossible(tmp)) {
+							tomoveRect.offsetTo(tomoveRect.left,
+									rowcolPressed[1]);
+						} else if (horizontalMovementPossible(tmp)) {
+							tomoveRect.offsetTo(rowcolPressed[0],
+									tomoveRect.top);
+						}
+
+					}
+
+					this.requestLayout();
+					this.invalidate();
+
+				}
+				// Log.d("bert","moved to X" + ev.getX());
+				// Log.d("bert","moved to Y" + ev.getY());
+				return true;
+			case (MotionEvent.ACTION_UP):
+				// Log.d("bert", "Action was UP");
+				if (v != null)
+					v.setBackgroundColor(Color.BLACK);
+				mToMove = null;
+				mPressed = false;
+				mDx = 0;
+				mDy = 0;
+				return true;
+			case (MotionEvent.ACTION_CANCEL):
+				// Log.d("bert", "Action was CANCEL");
+				return true;
+			case (MotionEvent.ACTION_OUTSIDE):
+				// Log.d("bert", "Movement occurred outside bounds "
+				// /+ "of current screen element");
+				return true;
+
+			case (MotionEvent.ACTION_POINTER_DOWN):
+				// Log.d("bert",
+				// "POINTER DOWN Action was POINTER DOWN + place is "
+				// + ev.getX() + "," + ev.getY());
+				if (mToMove != null) {
+					if (v != null) {
+						mToScale = v;
+						// Log.d("bert", "toscale HIT HIT HIT HIT");
+					}
+				}
+				return true;
+			default:
+				return super.onTouchEvent(ev);
+			}
+
+		}
+		return super.onTouchEvent(ev);
 		// return false;
 	}
 
@@ -228,8 +257,6 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 	}
 
 	private int[] getLeftUp(int row, int col) {
-		// Log.d("bert", "width is " + this.getWidth());
-		// Log.d("bert", "height is " + this.getHeight());
 		int colWidth = this.getWidth() / COLS;
 		int rowHeight = this.getHeight() / ROWS;
 		int[] point = new int[2];
@@ -263,7 +290,6 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 		// TODO Auto-generated method stub
 		super.addView(child);
 		mViewProps.put(child, new Rect(leftRow, leftCol, rightRow, rightCol));
-		child.setOnLongClickListener(this);
 	}
 
 	@Override
@@ -314,11 +340,5 @@ public class CustomLayout extends ViewGroup implements OnLongClickListener {
 			View v = getChildAt(i);
 			v.measure(wspec + 1, hspec + 1);
 		}
-	}
-
-	@Override
-	public boolean onLongClick(View v) {
-		// Log.d("bert", "long click");
-		return false;
 	}
 }
