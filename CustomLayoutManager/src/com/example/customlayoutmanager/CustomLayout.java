@@ -10,6 +10,12 @@ import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.View;
 import android.view.ViewGroup;
+import org.achartengine.ChartFactory;
+import org.achartengine.GraphicalView;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
 
 
 public class CustomLayout extends ViewGroup {
@@ -77,6 +83,7 @@ public class CustomLayout extends ViewGroup {
 				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
 				Log.d("bert", "chagend to" + leftDown[0] + " " + rightUp[1]
 						+ " " + rightUp[0] + " " + leftDown[1]);
+				//((GraphicalView)mToMove).repaint();
 				this.requestLayout();
 				invalidate();
 			} else if (p1.x < p2.x && p1.y < p2.y) {
@@ -87,6 +94,7 @@ public class CustomLayout extends ViewGroup {
 				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
 				Log.d("bert", "chagned to " + leftUp[0] + " " + leftUp[1] + " "
 						+ rightDown[0] + " " + rightDown[1]);
+				//((GraphicalView)mToMove).repaint();
 				this.requestLayout();
 				invalidate();
 			} else if (p1.x > p2.x && p1.y < p2.y) {
@@ -97,6 +105,7 @@ public class CustomLayout extends ViewGroup {
 				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
 				// Log.d("bert","chagned to " + leftUp[0]+" " + leftUp[1]+" " +
 				// rightDown[0]+" " + rightDown[1]);
+				//((GraphicalView)mToMove).repaint();
 				this.requestLayout();
 				invalidate();
 			} else {
@@ -107,6 +116,7 @@ public class CustomLayout extends ViewGroup {
 				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
 				Log.d("bert", "chagned to " + leftUp[0] + " " + leftUp[1] + " "
 						+ rightDown[0] + " " + rightDown[1]);
+				//((GraphicalView)mToMove).repaint();
 				this.requestLayout();
 				invalidate();
 			}
@@ -123,7 +133,7 @@ public class CustomLayout extends ViewGroup {
 			switch (action) {
 			case (MotionEvent.ACTION_DOWN):
 				if (v != null) {
-					v.setBackgroundColor(Color.RED);
+					//v.setBackgroundColor(Color.RED);
 					mToMove = v;
 				}
 				return true;
@@ -220,8 +230,8 @@ public class CustomLayout extends ViewGroup {
 				return true;
 			case (MotionEvent.ACTION_UP):
 				// Log.d("bert", "Action was UP");
-				if (v != null)
-					v.setBackgroundColor(Color.BLACK);
+				//if (v != null)
+					//v.setBackgroundColor(Color.BLACK);
 				mToMove = null;
 				mPressed = false;
 				mDx = 0;

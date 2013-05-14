@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="C:/Users/Bert/git/Custom Layout Manager/CustomLayoutManager/libs/android-support-v4.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/Users/Bert/git/Custom Layout Manager/CustomLayoutManager/libs/achartengine-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
