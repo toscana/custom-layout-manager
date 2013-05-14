@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.Menu;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TextView;
 
@@ -45,6 +46,11 @@ public class MainActivity extends Activity {
 		b.setBackgroundColor(Color.BLACK);
 		c.addView(b,12,12,20,20);
 		
+		Button s = new Button(this);
+		b.setPadding(0,0,0,0);
+		b.setText("Test TextView5");
+		b.setBackgroundColor(Color.BLACK);
+		c.addView(s,22,22,28,28);
 		
 		setContentView(c);
 	}
