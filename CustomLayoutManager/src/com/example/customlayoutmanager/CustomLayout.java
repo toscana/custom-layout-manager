@@ -8,21 +8,18 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.view.View.OnLongClickListener;
+
 
 public class CustomLayout extends ViewGroup {
 
-	private static final int ROWS = 500;
-	private static final int COLS = 1200;
+	private static final int ROWS = 100;
+	private static final int COLS = 200;
 	private int mDx;
 	private int mDy;
 
 	private View mToMove = null;
-	private View mToScale = null;
 
 	private HashMap<View, Rect> mViewProps;
 	private boolean mPressed = false;
@@ -129,7 +126,6 @@ public class CustomLayout extends ViewGroup {
 					v.setBackgroundColor(Color.RED);
 					mToMove = v;
 				}
-
 				return true;
 			case (MotionEvent.ACTION_MOVE):
 
@@ -141,7 +137,42 @@ public class CustomLayout extends ViewGroup {
 							(int) ev.getY());
 					// Log.d("position", "rowcol is " + rowcolPressed[0] + "x" +
 					// rowcolPressed[1]);
+					
 					if (!mPressed) {
+						if(rowcolPressed[0] < dims.left +(dims.right-dims.left)*0.33 && rowcolPressed[1]<dims.top + (dims.bottom-dims.top)*0.33 ){
+							//leftupper corner
+							dims.set(rowcolPressed[0],rowcolPressed[1],dims.right,dims.bottom);
+							this.requestLayout();
+							invalidate();
+							return true;
+							
+						}
+						else if(rowcolPressed[0] > dims.left +(dims.right-dims.left)*0.66 && rowcolPressed[1]<dims.top + (dims.bottom-dims.top)*0.33 ){
+							//rightupper corner
+							dims.set(dims.left,rowcolPressed[1],rowcolPressed[0],dims.bottom);
+							this.requestLayout();
+							invalidate();
+							return true;
+							
+						}
+						else if(rowcolPressed[0] < dims.left +(dims.right-dims.left)*0.33 && rowcolPressed[1]>dims.top + (dims.bottom-dims.top)*0.66){
+							//leftdown corner
+							dims.set(rowcolPressed[0],dims.top,dims.right,rowcolPressed[1]);
+							this.requestLayout();
+							invalidate();
+							return true;
+							
+						}
+						else if(rowcolPressed[0] > dims.left +(dims.right-dims.left)*0.66 && rowcolPressed[1]>dims.top + (dims.bottom-dims.top)*0.66 ) {
+							//rightdown corner
+							dims.set(dims.left,dims.top,rowcolPressed[0],rowcolPressed[1]);
+							this.requestLayout();
+							invalidate();
+							return true;
+							
+						}
+						
+						
 						mDx = dims.left - rowcolPressed[0];
 						mDy = dims.top - rowcolPressed[1];
 						mPressed = true;
@@ -208,12 +239,6 @@ public class CustomLayout extends ViewGroup {
 				// Log.d("bert",
 				// "POINTER DOWN Action was POINTER DOWN + place is "
 				// + ev.getX() + "," + ev.getY());
-				if (mToMove != null) {
-					if (v != null) {
-						mToScale = v;
-						// Log.d("bert", "toscale HIT HIT HIT HIT");
-					}
-				}
 				return true;
 			default:
 				return super.onTouchEvent(ev);
