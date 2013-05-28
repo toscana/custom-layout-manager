@@ -10,6 +10,9 @@ import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -17,23 +20,16 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-
 public class CustomLayout extends ViewGroup {
-
-	private static final int ROWS = 100;
-	private static final int COLS = 200;
 	private int mDx;
 	private int mDy;
 
-	private View mToMove = null;
+	private View mSelectedView = null;
 
-	private HashMap<View, Rect> mViewProps;
 	private boolean mPressed = false;
 
 	public CustomLayout(Context context) {
 		super(context);
-		// TODO Auto-generated constructor stub
-		mViewProps = new HashMap<View, Rect>();
 	}
 
 	/*
@@ -45,25 +41,11 @@ public class CustomLayout extends ViewGroup {
 		return true;
 	}
 
-	/*
-	 * @param x X-value of the pressed pixel
-	 * 
-	 * @param y X-value of the pressed pixel
-	 * 
-	 * @return an array containing the x and y values of the pressed column and
-	 * row
-	 */
-	private int[] getRowColPressed(int x, int y) {
-		int xPressed = x / (getWidth() / COLS);
-		int yPressed = y / (getHeight() / ROWS);
-		return new int[] { xPressed, yPressed };
-	}
-
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 
 		int pointerCount = ev.getPointerCount();
-		if (pointerCount == 2 && mToMove != null) {
+		if (pointerCount == 2 && mSelectedView != null) {
 			Log.d("bert", "pointercount is " + pointerCount);
 
 			PointerCoords p1 = new PointerCoords();
@@ -75,9 +57,10 @@ public class CustomLayout extends ViewGroup {
 			Log.d("point", "first is " + p1.x + "," + p1.y);
 			Log.d("point", "second is " + p2.x + "," + p2.y);
 
+			/*
 			if (p1.x < p2.x && p1.y > p2.y) {
 				// first finger is left down, second is right up
-				Rect r = mViewProps.get(mToMove);
+				Rect r = mSelectedView.getDimensions();
 				int[] leftDown = getRowColPressed((int) p1.x, (int) p1.y);
 				int[] rightUp = getRowColPressed((int) p2.x, (int) p2.y);
 				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
@@ -88,7 +71,7 @@ public class CustomLayout extends ViewGroup {
 				invalidate();
 			} else if (p1.x < p2.x && p1.y < p2.y) {
 				// first finger is left up, second finger is right down
-				Rect r = mViewProps.get(mToMove);
+				Rect r = mSelectedView.getDimensions();
 				int[] leftUp = getRowColPressed((int) p1.x, (int) p1.y);
 				int[] rightDown = getRowColPressed((int) p2.x, (int) p2.y);
 				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
@@ -99,7 +82,7 @@ public class CustomLayout extends ViewGroup {
 				invalidate();
 			} else if (p1.x > p2.x && p1.y < p2.y) {
 				// first finger is right up, second finger is left down
-				Rect r = mViewProps.get(mToMove);
+				Rect r = mSelectedView.getDimensions();
 				int[] rightUp = getRowColPressed((int) p1.x, (int) p1.y);
 				int[] leftDown = getRowColPressed((int) p2.x, (int) p2.y);
 				r.set(leftDown[0], rightUp[1], rightUp[0], leftDown[1]);
@@ -110,7 +93,7 @@ public class CustomLayout extends ViewGroup {
 				invalidate();
 			} else {
 				// first finger is right down, second finger is left up
-				Rect r = mViewProps.get(mToMove);
+				Rect r = mSelectedView.getDimensions();
 				int[] rightDown = getRowColPressed((int) p1.x, (int) p1.y);
 				int[] leftUp = getRowColPressed((int) p2.x, (int) p2.y);
 				r.set(leftUp[0], leftUp[1], rightDown[0], rightDown[1]);
@@ -120,6 +103,7 @@ public class CustomLayout extends ViewGroup {
 				this.requestLayout();
 				invalidate();
 			}
+			*/
 			return true;
 
 		} else if (pointerCount == 1) {
@@ -127,55 +111,135 @@ public class CustomLayout extends ViewGroup {
 			// movement gesture
 			int action = ev.getActionMasked();
 
-			int[] pos = getRowColPressed((int) ev.getX(), (int) ev.getY());
+			int[] pos = {(int) ev.getX(), (int) ev.getY()};
+			
+			/*for(int i=0;i<getChildCount();i++){
+				Log.d("bert","child" + i + "is " + getChildAt(i));
+			}*/
+			
 			View v = getTouchedView((int) ev.getX(), (int) ev.getY());
+			if(v!=null){
+				mSelectedView = v;
+				Log.d("bert","touched" +v);
+			}
+			
 
+			
+			/*
+			if(v != null){
+				//indien geen view touched moet er sowieso niets gebeuren, dus v moet != null
+			
+				if(mSelectedView != null){
+					//er was al een view selected
+					if(v == mSelectedView){
+						//is zelfde gebleven
+						//NOTHING TO DO
+					}
+					else{
+						// is een andere view geworden
+						//first lets remove the relativelayout container from the old stuff
+						RelativeLayout rl = (RelativeLayout)mSelectedView.getParent();
+						removeView(rl);
+						rl.removeView(mSelectedView);
+						Rect rec = mViewProps.remove(rl);
+						mViewProps.put(mSelectedView,rec);
+						addView(mSelectedView,rec);
+						
+						
+						//now lets add the new touched view as a rellayout on the system
+						
+						mSelectedView = v;
+						RelativeLayout newrel = new RelativeLayout(getContext());
+						TextView overlay = new TextView(getContext());
+						overlay.setText("bert");
+						removeView(mSelectedView);
+						newrel.addView(mSelectedView);
+						newrel.addView(overlay);
+						addView(newrel, rec);
+						rec = mViewProps.remove(mSelectedView);
+						mViewProps.put(newrel,rec);
+						
+						requestLayout();
+						invalidate();
+					}
+				}
+				else{
+					//mSelectedview was null, so this is the first selected view in this program
+					//we now only have to remove this view from the layout and put it inside a rellayout
+					
+					Rect rec = mViewProps.remove(v);
+					mSelectedView = v;
+					//removeView(mSelectedView);
+					RelativeLayout newrel = new RelativeLayout(getContext());
+					TextView overlay = new TextView(getContext());
+					overlay.setText("bert");
+					removeView(mSelectedView);
+					newrel.addView(mSelectedView);
+					newrel.addView(overlay);
+					addView(newrel,rec);
+					
+					mViewProps.put(newrel,rec);
+					requestLayout();
+					invalidate();
+				}
+			
+			}
+			*/
+		
 			switch (action) {
 			case (MotionEvent.ACTION_DOWN):
 				if (v != null) {
-					//v.setBackgroundColor(Color.RED);
-					mToMove = v;
+					//v.setBackgroundColor(Color.RED);					
 				}
 				return true;
 			case (MotionEvent.ACTION_MOVE):
 
 				// Log.d("bert", "Action was MOVE");
-				if (mToMove != null) {
+				if (v != null) {
 
-					Rect dims = mViewProps.get(mToMove);
+					//TODO what if complex views are used? view inside view inside viwe... -->parent is not correct
+					
+					//Log.d("bert","GOING TO MOVE " + mSelectedView);
+					//Log.d("bert","GOING TO MOVE its parent " + mSelectedView.getParent());
+				
 					int[] rowcolPressed = getRowColPressed((int) ev.getX(),
 							(int) ev.getY());
 					// Log.d("position", "rowcol is " + rowcolPressed[0] + "x" +
 					// rowcolPressed[1]);
 					
 					if (!mPressed) {
-						if(rowcolPressed[0] < dims.left +(dims.right-dims.left)*0.33 && rowcolPressed[1]<dims.top + (dims.bottom-dims.top)*0.33 ){
+						if(rowcolPressed[0] < v.getLeft() +(v.getRight()-v.getLeft())*0.33 && rowcolPressed[1]<v.getTop() + (v.getBottom()-v.getTop())*0.33 ){
 							//leftupper corner
-							dims.set(rowcolPressed[0],rowcolPressed[1],dims.right,dims.bottom);
+							mSelectedView.setLeft(rowcolPressed[0]);
+							mSelectedView.setTop(rowcolPressed[1]);
 							this.requestLayout();
 							invalidate();
 							return true;
 							
 						}
-						else if(rowcolPressed[0] > dims.left +(dims.right-dims.left)*0.66 && rowcolPressed[1]<dims.top + (dims.bottom-dims.top)*0.33 ){
+						else if(rowcolPressed[0] > v.getLeft() +(v.getRight()-v.getLeft())*0.66 && rowcolPressed[1]<v.getTop() + (v.getBottom()-v.getTop())*0.33 ){
 							//rightupper corner
-							dims.set(dims.left,rowcolPressed[1],rowcolPressed[0],dims.bottom);
+							
+							mSelectedView.setRight(rowcolPressed[0]);
+							mSelectedView.setTop(rowcolPressed[1]);
 							this.requestLayout();
 							invalidate();
 							return true;
 							
 						}
-						else if(rowcolPressed[0] < dims.left +(dims.right-dims.left)*0.33 && rowcolPressed[1]>dims.top + (dims.bottom-dims.top)*0.66){
+						else if(rowcolPressed[0] < v.getLeft() +(v.getRight()-v.getLeft())*0.33 && rowcolPressed[1]>v.getTop() + (v.getBottom()-v.getTop())*0.66){
 							//leftdown corner
-							dims.set(rowcolPressed[0],dims.top,dims.right,rowcolPressed[1]);
+							mSelectedView.setLeft(rowcolPressed[0]);
+							mSelectedView.setBottom(rowcolPressed[1]);
 							this.requestLayout();
 							invalidate();
 							return true;
 							
 						}
-						else if(rowcolPressed[0] > dims.left +(dims.right-dims.left)*0.66 && rowcolPressed[1]>dims.top + (dims.bottom-dims.top)*0.66 ) {
+						else if(rowcolPressed[0] > v.getLeft() +(v.getRight()-v.getLeft())*0.66 && rowcolPressed[1]>v.getTop() + (v.getBottom()-v.getTop())*0.66 ) {
 							//rightdown corner
-							dims.set(dims.left,dims.top,rowcolPressed[0],rowcolPressed[1]);
+							mSelectedView.setRight(rowcolPressed[0]);
+							mSelectedView.setBottom(rowcolPressed[1]);
 							this.requestLayout();
 							invalidate();
 							return true;
@@ -183,8 +247,8 @@ public class CustomLayout extends ViewGroup {
 						}
 						
 						
-						mDx = dims.left - rowcolPressed[0];
-						mDy = dims.top - rowcolPressed[1];
+						mDx = v.getLeft() - rowcolPressed[0];
+						mDy = v.getTop() - rowcolPressed[1];
 						mPressed = true;
 					}
 
@@ -203,10 +267,12 @@ public class CustomLayout extends ViewGroup {
 
 					// todo doest work when 1 size width and gheight
 
-					Rect tomoveRect = mViewProps.get(mToMove);
+					/*
+					Rect tomoveRect = mSelectedView.getDimensions();
 
 					Rect tmp = new Rect(tomoveRect);
 					tmp.offsetTo(rowcolPressed[0], rowcolPressed[1]);
+					
 					// Log.d("bert","can be moved " + mCanBeMoved);
 					if (liesWithinBoundaries(tmp)) {
 						tomoveRect.offsetTo(rowcolPressed[0], rowcolPressed[1]);
@@ -220,6 +286,11 @@ public class CustomLayout extends ViewGroup {
 						}
 
 					}
+					*/
+					
+					//going to move
+					mSelectedView.offsetLeftAndRight(rowcolPressed[1]);
+					mSelectedView.offsetTopAndBottom(rowcolPressed[0]);
 
 					this.requestLayout();
 					this.invalidate();
@@ -232,7 +303,7 @@ public class CustomLayout extends ViewGroup {
 				// Log.d("bert", "Action was UP");
 				//if (v != null)
 					//v.setBackgroundColor(Color.BLACK);
-				mToMove = null;
+				//mSelectedView = null;
 				mPressed = false;
 				mDx = 0;
 				mDy = 0;
@@ -259,6 +330,12 @@ public class CustomLayout extends ViewGroup {
 		// return false;
 	}
 
+	private void addView(View v, Rect rec) {
+		// TODO Auto-generated method stub
+		addView(v,rec.top,rec.left,rec.bottom,rec.right);
+		
+	}
+
 	private boolean horizontalMovementPossible(Rect tmp) {
 		int[] rightDown = getRowColPressed(this.getWidth(), this.getHeight());
 		return !(tmp.left < 0 || tmp.right > rightDown[0]);
@@ -277,13 +354,14 @@ public class CustomLayout extends ViewGroup {
 	}
 
 	private View getTouchedView(int x, int y) {
+		Log.d("point","touched " + x + " , " +y);
 		int nbChildren = getChildCount();
 		int[] rowcolPressed = getRowColPressed(x, y);
 		for (int i = 0; i < nbChildren; i++) {
 			View v = getChildAt(i);
-			Rect cd = mViewProps.get(v);
-			if (cd.left <= rowcolPressed[0] && rowcolPressed[0] <= cd.right)
-				if (cd.top <= rowcolPressed[1] && rowcolPressed[1] <= cd.bottom) {
+			
+			if (v.getLeft() <= rowcolPressed[0] && rowcolPressed[0] <= v.getRight())
+				if (v.getTop() <= rowcolPressed[1] && rowcolPressed[1] <= v.getBottom()) {
 					return v;
 				}
 
@@ -323,17 +401,23 @@ public class CustomLayout extends ViewGroup {
 	public void addView(View child, int leftRow, int leftCol, int rightRow,
 			int rightCol) {
 		// TODO Auto-generated method stub
+		child.setTop(leftRow);
+		child.setLeft(leftCol);
+		child.setBottom(rightRow);
+		child.setRight(rightCol);
+		
 		super.addView(child);
-		mViewProps.put(child, new Rect(leftRow, leftCol, rightRow, rightCol));
+		
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		for (int i = 0; i < this.getChildCount(); i++) {
 			View v = getChildAt(i);
-			Rect cd = mViewProps.get(v);
-			int[] leftUp = getLeftUp(cd.top, cd.left);
-			int[] rightDown = getRightDown(cd.bottom, cd.right);
+			Rect cd;
+				
+			int[] leftUp = getLeftUp(v.getTop(), v.getLeft());
+			int[] rightDown = getRightDown(v.getBottom(), v.getRight());
 			// Log.d("onLayout", "component " + ((TextView) v).getText()
 			// + "leftup " + getCo(leftUp) + " rightdown "
 			// + getCo(rightDown));
