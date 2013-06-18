@@ -39,38 +39,38 @@ public class MainActivity extends Activity {
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(b,0,0,2,2);
+		c.addView(b,0,0,50,50);
 		
 		b = new TextView(this);
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(b,3,3,5,5);
+		c.addView(b,50,50,100,100);
 		
 		b = new TextView(this);
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(b,6,6,8,8);
+		c.addView(b,100,100,200,200);
 		
 		
 		b = new TextView(this);
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView4");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(b,9,9,11,11);
+		c.addView(b,300,300,500,500);
 		
 		b = new TextView(this);
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView5");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(b,12,12,20,20);
+		c.addView(b,600,600,800,800);
 		
 		Button s = new Button(this);
 		b.setPadding(0,0,0,0);
 		b.setText("Test TextView5");
 		b.setBackgroundColor(Color.BLACK);
-		c.addView(s,22,22,28,28);
+		c.addView(s,800,800,1000,1000);
 		
 		
 		
@@ -79,7 +79,7 @@ public class MainActivity extends Activity {
 	            initChart();
 	            addSampleData();
 	            mChart = ChartFactory.getCubeLineChartView(this, mDataset, mRenderer, 0.3f);
-	            c.addView(mChart,50,50,100,200);
+	            c.addView(mChart,1000,1000,1200,1200);
 	        } else {
 	            mChart.repaint();
 	        }
