@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.activity_main);
-		MyRelativeLayout c = new MyRelativeLayout(this);
+		MyRelativeLayout c = new MyRelativeLayout(this,R.drawable.bullet);
 		c.setLayoutEditable(true);
 		TextView b = new TextView(this);
 		//b.setPadding(0,0,0,0);
@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView5");
 		b.setBackgroundColor(Color.RED);
-		c.addView(s,800,800,1000,1000);
+		c.addView(s,800,800,1600,1600);
 		
 		
 		
