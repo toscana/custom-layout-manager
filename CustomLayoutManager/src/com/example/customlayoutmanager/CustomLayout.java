@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -165,7 +166,7 @@ public class CustomLayout extends ViewGroup {
 					Log.d("bert", "touched" + v);
 				}
 				if (v != null) {
-					v.setBackgroundColor(Color.RED);
+					//v.setBackgroundColor(Color.RED);
 
 				}
 				return true;
@@ -315,39 +316,27 @@ public class CustomLayout extends ViewGroup {
 
 	private void viewUnSelect(View v) {
 		// TODO Auto-generated method stub
-		v.setBackgroundColor(Color.BLACK);
+		//v.setBackgroundColor(Color.BLACK);
 
 	}
 
 	private void viewSelect(View v) {
 		// TODO Auto-generated method stub
-		v.setBackgroundColor(Color.RED);
-		RelativeLayout newrel = new RelativeLayout(getContext());
-		TextView overlay = new TextView(getContext());
-		overlay.setText("bert");
+		//v.setBackgroundColor(Color.RED);
 		
 		removeView(v);
 		
+		RelativeLayout rel = new RelativeLayout(getContext());
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+		rel.addView(v,lp);
 		
-		newrel.addView(v,lp);
-	//	newrel.addView(overlay,lp);
-		
-		RelativeLayout.LayoutParams lp2  = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
-		lp2.addRule(RelativeLayout.ALIGN_PARENT_LEFT,RelativeLayout.TRUE);
-		lp2.addRule(RelativeLayout.CENTER_VERTICAL,RelativeLayout.TRUE);
-		
-		ImageView bullet = new ImageView(getContext());
-		bullet.setImageResource(R.drawable.bullet);
-		newrel.addView(bullet);
-		//bullet.bringToFront();
-		
-		
-		
-		addView(newrel, v.getLeft(),v.getTop(),v.getRight(),v.getBottom());
-		
+		addView(rel,v.getLeft(),v.getTop(),v.getRight(),v.getBottom());
+				
 		requestLayout();
 		invalidate();
+		
+	//	Log.d("bert","x position of bullet is " + bullet.getX());
+	//	Log.d("bert","y position of bullet is " + bullet.getX());
 
 	}
 
@@ -391,26 +380,6 @@ public class CustomLayout extends ViewGroup {
 		return null;
 	}
 
-	private int[] getLeftUp(int row, int col) {
-		int colWidth = this.getWidth() / COLS;
-		int rowHeight = this.getHeight() / ROWS;
-		int[] point = new int[2];
-		point[0] = col * colWidth;
-		point[1] = row * rowHeight;
-		return point;
-	}
-
-	private int[] getRightDown(int row, int col) {
-		int colWidth = this.getWidth() / COLS;
-		int rowHeight = this.getHeight() / ROWS;
-		int[] point = new int[2];
-		point[0] = (col + 1) * colWidth;
-		point[1] = (row + 1) * rowHeight;
-		return point;
-	}
-
-	// public int[] get
-
 	/*
 	 * Called when this view should assign a view and positions to all of its
 	 * children.
@@ -444,11 +413,7 @@ public class CustomLayout extends ViewGroup {
 		}
 	}
 
-	private String getCo(int[] co) {
-		return "(" + co[0] + "," + co[1] + ")";
-	}
-
-	/*
+    /*
 	 * 
 	 * Measure the view and its content to determine the measured width and the
 	 * measured height. This method is invoked by measure(int, int) and should
