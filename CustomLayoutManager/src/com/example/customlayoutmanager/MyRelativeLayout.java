@@ -135,12 +135,12 @@ public class MyRelativeLayout extends RelativeLayout {
 					//Start snapping part
 					Log.d("bert","parent place right " + ((ViewGroup)mTempRelativeLayout.getParent()).getRight());
 					
-					//hardcoded 25 is helft van height --> hieronder nog veranderen
-					if(mTempRelativeLayout.getTop() +mResizeHandleHeight/2 <=0){
+				
+					if(mTempRelativeLayout.getTop() + mResizeHandleHeight/2 <=0){
 						layout.topMargin = ((ViewGroup)mTempRelativeLayout.getParent()).getTop()-mResizeHandleHeight/2;
 						mTopHandle.setVisibility(View.INVISIBLE);
 					}
-					if(mTempRelativeLayout.getLeft() +mResizeHandleWidth/2 <=0){
+					if(mTempRelativeLayout.getLeft() + mResizeHandleWidth/2 <=0){
 						layout.leftMargin = ((ViewGroup)mTempRelativeLayout.getParent()).getLeft() -mResizeHandleWidth/2;
 						mLeftHandle.setVisibility(View.INVISIBLE);
 					}
