@@ -40,14 +40,14 @@ public class MainActivity extends Activity {
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,300,300,301,301);
+		c.addView(b,300,300,500,500);
 		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,50,50,100,100);
-		
+		c.addView(b,600,600,800,800);
+		/*
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
 	        } else {
 	            mChart.repaint();
 	        }
-		
+		*/
 		setContentView(c);
 	}
 
