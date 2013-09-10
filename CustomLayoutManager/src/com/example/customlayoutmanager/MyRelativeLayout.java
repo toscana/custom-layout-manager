@@ -1,7 +1,7 @@
 package com.example.customlayoutmanager;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 
 public class MyRelativeLayout extends RelativeLayout {
 
@@ -92,6 +93,7 @@ public class MyRelativeLayout extends RelativeLayout {
 
 			switch (action) {
 			case (MotionEvent.ACTION_DOWN):
+				Log.d("bert","touched i" + v);
 				if (v == null) {
 					// if you click on the upper relativelayout, unselect last
 					// selected
@@ -153,6 +155,8 @@ public class MyRelativeLayout extends RelativeLayout {
 
 					// Start snapping part in surrounding rectangle (surrounding relativelayout)
 					if (mTempRelativeLayout.getTop() + mResizeHandleHeight / 2 <= 0) {
+				
+						
 						layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getTop() - mResizeHandleHeight / 2;
 						mTopHandle.setVisibility(View.INVISIBLE);
 						if (!mSnappedVert)
@@ -192,7 +196,8 @@ public class MyRelativeLayout extends RelativeLayout {
 					View other;
 					for(int i=0;i<getChildCount();i++){
 						other = getChildAt(i);
-						if(other != mTempRelativeLayout){
+						//only snap if views are adjacent
+						if(other != mTempRelativeLayout && 	viewsAdjacent(mTempRelativeLayout,other)){
 							if (Math.abs(mTempRelativeLayout.getTop() - other.getBottom()) <= mResizeHandleHeight/2) {
 								
 								layout.topMargin = other.getBottom() - mResizeHandleHeight/2;
@@ -200,7 +205,7 @@ public class MyRelativeLayout extends RelativeLayout {
 								if (!mSnappedVert)
 									mYSnapPosition = y;
 								mSnappedVert = true;
-								break;
+								//break;
 							}
 							if (Math.abs(mTempRelativeLayout.getBottom()- other.getTop()) <= mResizeHandleHeight/2) {
 								layout.topMargin = other.getTop()- mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
@@ -208,7 +213,7 @@ public class MyRelativeLayout extends RelativeLayout {
 								if (!mSnappedVert)
 									mYSnapPosition = y;
 								mSnappedVert = true;
-								break;
+								//break;
 							}
 
 							if (Math.abs(mTempRelativeLayout.getLeft()- other.getRight()) <= mResizeHandleHeight/2) {
@@ -217,7 +222,7 @@ public class MyRelativeLayout extends RelativeLayout {
 								if (!mSnappedHoriz)
 									mXSnapPosition = x;
 								mSnappedHoriz = true;
-								break;
+								//break;
 							}
 							if (Math.abs(mTempRelativeLayout.getRight()- other.getLeft()) <= mResizeHandleHeight/2) {
 								mRightHandle.setVisibility(View.INVISIBLE);
@@ -225,12 +230,8 @@ public class MyRelativeLayout extends RelativeLayout {
 								if (!mSnappedHoriz)
 									mXSnapPosition = x;
 								mSnappedHoriz = true;
-								break;
+							//	break;
 							}
-							
-							
-							
-							
 						}
 					}
 					
@@ -246,7 +247,7 @@ public class MyRelativeLayout extends RelativeLayout {
 				}
 				return true;
 			case (MotionEvent.ACTION_UP):
-				Log.d("bert", "ACTION UP");
+				//Log.d("bert", "ACTION UP");
 
 				// mPressed = false;
 				mDx = 0;
@@ -272,6 +273,14 @@ public class MyRelativeLayout extends RelativeLayout {
 		}
 		return super.onTouchEvent(ev);
 		// return false;
+	}
+
+	private boolean viewsAdjacent(RelativeLayout toSnap, View other) {
+		Rect rec1 = new Rect(toSnap.getLeft()-mResizeHandleWidth,toSnap.getTop()-mResizeHandleHeight,toSnap.getRight()+mResizeHandleWidth,toSnap.getBottom()+mResizeHandleHeight);
+		Rect rec2 = new Rect(other.getLeft(),other.getTop(),other.getRight(),other.getBottom());
+	
+		// TODO Auto-generated method stub
+		return Rect.intersects(rec1, rec2);
 	}
 
 	/*
@@ -333,6 +342,7 @@ public class MyRelativeLayout extends RelativeLayout {
 		bullet.setImageResource(R.drawable.bullet);
 		newrel.addView(bullet, lp2);
 		mLeftHandle = bullet;
+		
 
 		// add right Resize image
 		lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -362,6 +372,7 @@ public class MyRelativeLayout extends RelativeLayout {
 		newrel.addView(bullet, lp2);
 		mBottomHandle = bullet;
 
+	
 		requestLayout();
 		invalidate();
 		Log.d("bert", "component " + v + " has been selected");
@@ -398,9 +409,24 @@ public class MyRelativeLayout extends RelativeLayout {
 	}
 
 	private View getTouchedView(int x, int y) {
-		Log.d("point", "touched " + x + " , " + y);
+		Log.d("bert", "touched " + x + " , " + y);
 		int nbChildren = getChildCount();
 
+		if(mTempRelativeLayout!=null)
+			if(mTempRelativeLayout.getLeft() <= x && x <= mTempRelativeLayout.getRight())
+				if((mTempRelativeLayout.getTop() <= y && y <= mTempRelativeLayout.getBottom()))
+					Log.d("bert","selected clicked");
+			
+		/*
+			Log.d("bert","left handle is on posisiont " + mLeftHandle.getLeft() + " en y " + mLeftHandle.getTop());
+			if(mLeftHandle.getLeft() <= x && x <= mLeftHandle.getRight()){
+				if((mLeftHandle.getTop() <= y && y <= mLeftHandle.getBottom())){
+					Log.d("bert","BONSU BOSNUS");
+					return mLeftHandle;
+				}
+			}
+		*/
+		
 		for (int i = 0; i < nbChildren; i++) {
 			View v = getChildAt(i);
 
@@ -413,4 +439,5 @@ public class MyRelativeLayout extends RelativeLayout {
 		return null;
 	}
 
+	
 }

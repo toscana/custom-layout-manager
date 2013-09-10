@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/Users/Bert/git/Custom Layout Manager/CustomLayoutManager/libs/android-support-v4.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/Bert/git/Custom Layout Manager/CustomLayoutManager/libs/achartengine-1.0.0.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

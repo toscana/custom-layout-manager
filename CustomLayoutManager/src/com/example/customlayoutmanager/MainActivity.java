@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.RED);
 		c.addView(b,600,600,800,800);
-		/*
+		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
 	        } else {
 	            mChart.repaint();
 	        }
-		*/
+		
 		setContentView(c);
 	}
 
