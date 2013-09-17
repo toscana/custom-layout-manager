@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
 public class MyRelativeLayout extends RelativeLayout {
 
 	private int mDx;
@@ -26,7 +25,7 @@ public class MyRelativeLayout extends RelativeLayout {
 	private RelativeLayout mTempRelativeLayout;
 
 	private View mSelectedView = null;
-	private LayoutParams mSelectedViewLayout;
+	private LayoutParams mSelectedInnerViewLayoutParams;
 
 	private boolean mSnappedHoriz;
 	private boolean mSnappedVert;
@@ -93,19 +92,19 @@ public class MyRelativeLayout extends RelativeLayout {
 
 			switch (action) {
 			case (MotionEvent.ACTION_DOWN):
-				Log.d("bert","touched i" + v);
+				Log.d("bert", "touched i" + v);
 				if (v == null) {
 					// if you click on the upper relativelayout, unselect last
 					// selected
 					// check if something was selected, if so remove handles
 					if (mTempRelativeLayout != null)
 						viewUnSelect(mTempRelativeLayout);
-				} else {
+				} else if (v != mLeftHandle && v != mRightHandle && v != mTopHandle && v != mBottomHandle) {
 					// user clicked on normal view inside relativelayout
 					mSnappedHoriz = false;
 					mSnappedVert = false;
-					mDx = v.getLeft() - x;
-					mDy = v.getTop() - y;
+					mDx = v.getLeft() - x - mResizeHandleWidth/2;
+					mDy = v.getTop() - y - mResizeHandleHeight/2;
 
 					// check if the view in focus has to change
 					if (v != mTempRelativeLayout) {
@@ -118,136 +117,25 @@ public class MyRelativeLayout extends RelativeLayout {
 				return true;
 
 			case (MotionEvent.ACTION_MOVE):
+				Log.d("bert","move move move");
 				if (mTempRelativeLayout != null) {
 
-					LayoutParams layout = (LayoutParams) mTempRelativeLayout.getLayoutParams();
-					layout.leftMargin = x + mDx;
-					layout.topMargin = y + mDy;
-
-					// start unsnapping if possible
-					if (mSnappedVert) {
-						if (Math.abs(mYSnapPosition - y) > mResizeHandleHeight) {
-							Log.d("bert","vertical unsnapping");
-							mSnappedVert = false;
-							layout.topMargin = y + mDy;
-							mTopHandle.setVisibility(View.VISIBLE);
-							mBottomHandle.setVisibility(View.VISIBLE);
-							this.requestLayout();
-							this.invalidate();
-							break;
-						}
+					if (v == mLeftHandle || v == mRightHandle || v == mTopHandle || v == mBottomHandle) {
+						Log.d("bert","handles pressed");
 					}
+					// no resize action
+					else {
 
-					if (mSnappedHoriz) {
-						if (Math.abs(mXSnapPosition - x) > mResizeHandleWidth) {
-							Log.d("bert","horizontal unsnapping");
-							mSnappedHoriz = false;
-							layout.leftMargin = x + mDx;
-							mLeftHandle.setVisibility(View.VISIBLE);
-							mRightHandle.setVisibility(View.VISIBLE);
-							this.requestLayout();
-							this.invalidate();
-							break;
-						}
+						moveView(x, y);
 					}
-
-			
-
-					// Start snapping part in surrounding rectangle (surrounding relativelayout)
-					if (mTempRelativeLayout.getTop() + mResizeHandleHeight / 2 <= 0) {
-				
-						
-						layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getTop() - mResizeHandleHeight / 2;
-						mTopHandle.setVisibility(View.INVISIBLE);
-						if (!mSnappedVert)
-							mYSnapPosition = y;
-						mSnappedVert = true;
-
-					}
-					if (mTempRelativeLayout.getBottom() >= ((ViewGroup) mTempRelativeLayout.getParent()).getBottom()
-							+ mResizeHandleHeight / 2) {
-						layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getBottom()
-								- mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
-						mBottomHandle.setVisibility(View.INVISIBLE);
-						if (!mSnappedVert)
-							mYSnapPosition = y;
-						mSnappedVert = true;
-					}
-
-					if (mTempRelativeLayout.getLeft() + mResizeHandleWidth / 2 <= 0) {
-						layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getLeft() - mResizeHandleWidth / 2;
-						mLeftHandle.setVisibility(View.INVISIBLE);
-						if (!mSnappedHoriz)
-							mXSnapPosition = x;
-						mSnappedHoriz = true;
-					}
-					if (mTempRelativeLayout.getRight() >= ((ViewGroup) mTempRelativeLayout.getParent()).getRight()
-							+ mResizeHandleWidth / 2) {
-						mRightHandle.setVisibility(View.INVISIBLE);
-						layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getRight()
-								- mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
-						if (!mSnappedHoriz)
-							mXSnapPosition = x;
-						mSnappedHoriz = true;
-					}
-					// Stop snapping part for surrounding relativelayout
-
-					//start snapping part for all other elements on the screen
-					View other;
-					for(int i=0;i<getChildCount();i++){
-						other = getChildAt(i);
-						//only snap if views are adjacent
-						if(other != mTempRelativeLayout && 	viewsAdjacent(mTempRelativeLayout,other)){
-							if (Math.abs(mTempRelativeLayout.getTop() - other.getBottom()) <= mResizeHandleHeight/2) {
-								
-								layout.topMargin = other.getBottom() - mResizeHandleHeight/2;
-								mTopHandle.setVisibility(View.INVISIBLE);
-								if (!mSnappedVert)
-									mYSnapPosition = y;
-								mSnappedVert = true;
-								//break;
-							}
-							if (Math.abs(mTempRelativeLayout.getBottom()- other.getTop()) <= mResizeHandleHeight/2) {
-								layout.topMargin = other.getTop()- mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
-								mBottomHandle.setVisibility(View.INVISIBLE);
-								if (!mSnappedVert)
-									mYSnapPosition = y;
-								mSnappedVert = true;
-								//break;
-							}
-
-							if (Math.abs(mTempRelativeLayout.getLeft()- other.getRight()) <= mResizeHandleHeight/2) {
-								layout.leftMargin = other.getRight() - mResizeHandleWidth / 2;
-								mLeftHandle.setVisibility(View.INVISIBLE);
-								if (!mSnappedHoriz)
-									mXSnapPosition = x;
-								mSnappedHoriz = true;
-								//break;
-							}
-							if (Math.abs(mTempRelativeLayout.getRight()- other.getLeft()) <= mResizeHandleHeight/2) {
-								mRightHandle.setVisibility(View.INVISIBLE);
-								layout.leftMargin = other.getLeft() - mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
-								if (!mSnappedHoriz)
-									mXSnapPosition = x;
-								mSnappedHoriz = true;
-							//	break;
-							}
-						}
-					}
-					
-					//stop snapping part for all other elements on the screen
-					
-					
-					mTempRelativeLayout.setLayoutParams(layout);
-					// Log.d("bert","moved and top is now" + v.getTop());
 
 					this.requestLayout();
 					this.invalidate();
-
+					
 				}
 				return true;
 			case (MotionEvent.ACTION_UP):
-				//Log.d("bert", "ACTION UP");
+				Log.d("bert", "ACTION UP");
 
 				// mPressed = false;
 				mDx = 0;
@@ -275,10 +163,164 @@ public class MyRelativeLayout extends RelativeLayout {
 		// return false;
 	}
 
-	private boolean viewsAdjacent(RelativeLayout toSnap, View other) {
-		Rect rec1 = new Rect(toSnap.getLeft()-mResizeHandleWidth,toSnap.getTop()-mResizeHandleHeight,toSnap.getRight()+mResizeHandleWidth,toSnap.getBottom()+mResizeHandleHeight);
-		Rect rec2 = new Rect(other.getLeft(),other.getTop(),other.getRight(),other.getBottom());
+	private void moveView(int x, int y) {
+		LayoutParams layout = (LayoutParams) mTempRelativeLayout.getLayoutParams();
+		layout.leftMargin = x + mDx;
+		layout.topMargin = y + mDy;
+		//requestLayout();
+		Log.d("bert","leftmargi" + layout.leftMargin);
+		Log.d("bert","topmarg" + layout.topMargin);
 	
+	
+
+		// start unsnapping if possible
+		if (mSnappedVert) {
+			if (Math.abs(mYSnapPosition - y) > mResizeHandleHeight) {
+				Log.d("bert", "vertical unsnapping");
+				mSnappedVert = false;
+				layout.topMargin = y + mDy;
+				mTopHandle.setVisibility(View.VISIBLE);
+				mBottomHandle.setVisibility(View.VISIBLE);
+				this.requestLayout();
+				this.invalidate();
+				return;
+			}
+		}
+		
+		Log.d("bert","leftmargi" + layout.leftMargin);
+		Log.d("bert","topmarg" + layout.topMargin);
+
+		if (mSnappedHoriz) {
+			if (Math.abs(mXSnapPosition - x) > mResizeHandleWidth) {
+				Log.d("bert", "horizontal unsnapping");
+				mSnappedHoriz = false;
+				layout.leftMargin = x + mDx;
+				mLeftHandle.setVisibility(View.VISIBLE);
+				mRightHandle.setVisibility(View.VISIBLE);
+				this.requestLayout();
+				this.invalidate();
+				return;
+			}
+		}
+		
+		Log.d("bert","leftmargi" + layout.leftMargin);
+		Log.d("bert","topmarg" + layout.topMargin);
+		Log.d("bert","bottommarg" + layout.bottomMargin);
+
+		// Start snapping part in surrounding rectangle
+		// (surrounding
+		// relativelayout)
+		if (mTempRelativeLayout.getTop() + mResizeHandleHeight / 2 <= 0) {
+
+			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getTop() - mResizeHandleHeight / 2;
+			mTopHandle.setVisibility(View.INVISIBLE);
+			if (!mSnappedVert)
+				mYSnapPosition = y;
+			mSnappedVert = true;
+			Log.d("bert","snap1");
+
+		}
+		if (mTempRelativeLayout.getBottom() >= ((ViewGroup) mTempRelativeLayout.getParent()).getBottom()
+				+ mResizeHandleHeight / 2) {
+			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getBottom()
+					- mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
+			mBottomHandle.setVisibility(View.INVISIBLE);
+			if (!mSnappedVert)
+				mYSnapPosition = y;
+			mSnappedVert = true;
+			Log.d("bert","snap2");
+		}
+
+		if (mTempRelativeLayout.getLeft() + mResizeHandleWidth / 2 <= 0) {
+			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getLeft() - mResizeHandleWidth / 2;
+			mLeftHandle.setVisibility(View.INVISIBLE);
+			if (!mSnappedHoriz)
+				mXSnapPosition = x;
+			mSnappedHoriz = true;
+			Log.d("bert","snap3");
+		}
+		if (mTempRelativeLayout.getRight() >= ((ViewGroup) mTempRelativeLayout.getParent()).getRight()
+				+ mResizeHandleWidth / 2) {
+			mRightHandle.setVisibility(View.INVISIBLE);
+			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getRight()
+					- mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
+			if (!mSnappedHoriz)
+				mXSnapPosition = x;
+			mSnappedHoriz = true;
+			Log.d("bert","snap4");
+		}
+		// Stop snapping part for surrounding relativelayout
+
+		// start snapping part for all other elements on the
+		// screen
+		View other;
+		for (int i = 0; i < getChildCount(); i++) {
+			other = getChildAt(i);
+			// only snap if views are adjacent
+			if (other != mTempRelativeLayout && viewsAdjacent(mTempRelativeLayout, other)) {
+				if (Math.abs(layout.topMargin - other.getBottom()) <= mResizeHandleHeight / 2) {
+					layout.topMargin = other.getBottom() - mResizeHandleHeight / 2;
+					mTopHandle.setVisibility(View.INVISIBLE);
+					if (!mSnappedVert)
+						mYSnapPosition = y;
+					mSnappedVert = true;
+					// break;
+					Log.d("bert","snap 5");
+				}
+				if (Math.abs(layout.topMargin + mTempRelativeLayout.getHeight() - other.getTop()) <= mResizeHandleHeight / 2) {
+					Log.d("bert","snap 6" + "onto " + ((TextView)other).getText());
+					Log.d("bert","snap 6" + "onto " + ((TextView)other));
+					Log.d("bert","snap 6 BOTTOM IS " + mTempRelativeLayout.getBottom());
+					Log.d("bert","snap 6 OTHER TOP IS " + other.getTop());
+					Log.d("bert","snap 6" + "onto view with leftmargin" + ((TextView)other).getLeft());
+					Log.d("bert","snap 6" + "component sel is " + mTempRelativeLayout);
+					
+					
+					layout.topMargin = other.getTop() - mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
+					mBottomHandle.setVisibility(View.INVISIBLE);
+					if (!mSnappedVert)
+						mYSnapPosition = y;
+					mSnappedVert = true;
+					// break;
+					
+				}
+
+				if (Math.abs(layout.leftMargin - other.getRight()) <= mResizeHandleHeight / 2) {
+					layout.leftMargin = other.getRight() - mResizeHandleWidth / 2;
+					mLeftHandle.setVisibility(View.INVISIBLE);
+					if (!mSnappedHoriz)
+						mXSnapPosition = x;
+					mSnappedHoriz = true;
+					// break;
+					Log.d("bert","snap 7");
+				}
+				if (Math.abs(layout.leftMargin + mTempRelativeLayout.getWidth() - other.getLeft()) <= mResizeHandleHeight / 2) {
+					mRightHandle.setVisibility(View.INVISIBLE);
+					layout.leftMargin = other.getLeft() - mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
+					if (!mSnappedHoriz)
+						mXSnapPosition = x;
+					mSnappedHoriz = true;
+					// break;
+					Log.d("bert","snap 8 onto " + other);
+					Log.d("bert","snap 8" + "component sel is " + mTempRelativeLayout);
+				}
+			}
+		}
+
+		// stop snapping part for all other elements on the
+		// screen
+
+		mTempRelativeLayout.setLayoutParams(layout);
+		// Log.d("bert","moved and top is now" + v.getTop());
+
+
+	}
+
+	private boolean viewsAdjacent(RelativeLayout toSnap, View other) {
+		Rect rec1 = new Rect(toSnap.getLeft() - mResizeHandleWidth, toSnap.getTop() - mResizeHandleHeight, toSnap.getRight()
+				+ mResizeHandleWidth, toSnap.getBottom() + mResizeHandleHeight);
+		Rect rec2 = new Rect(other.getLeft(), other.getTop(), other.getRight(), other.getBottom());
+
 		// TODO Auto-generated method stub
 		return Rect.intersects(rec1, rec2);
 	}
@@ -300,38 +342,35 @@ public class MyRelativeLayout extends RelativeLayout {
 		// TODO Auto-generated method stub
 		// save clicked view as selected view
 		mSelectedView = v;
-
-		RelativeLayout newrel = new RelativeLayout(getContext());
-		mTempRelativeLayout = newrel;
+		mTempRelativeLayout = new RelativeLayout(getContext());
+		mSelectedInnerViewLayoutParams = (LayoutParams) v.getLayoutParams();
+		
+		
+		
 		removeView(v);
-		RelativeLayout.LayoutParams l = (LayoutParams) v.getLayoutParams();
+		Log.d("bert","lyoaut params are leftMargin" + mSelectedInnerViewLayoutParams.leftMargin);
 		// create a copy to save the inner view sizes until object deselected
-		mSelectedViewLayout = new LayoutParams(l);
-		RelativeLayout.LayoutParams innerViewLayout = new RelativeLayout.LayoutParams(l);
+		
+		RelativeLayout.LayoutParams innerViewLayout = new RelativeLayout.LayoutParams(mSelectedInnerViewLayoutParams);
 
-		int viewWidth = l.width;
-		int viewHeight = l.height;
+		int viewWidth = mSelectedInnerViewLayoutParams.width;
+		int viewHeight = mSelectedInnerViewLayoutParams.height;
 
 		// change layout params because we want the resize images centered on
 		// bound
-		l.width = l.width + mResizeHandleWidth;
-		l.height = l.height + mResizeHandleHeight;
-		l.leftMargin -= mResizeHandleWidth / 2;
-		l.rightMargin -= mResizeHandleWidth / 2;
-		l.topMargin -= mResizeHandleHeight / 2;
-		l.bottomMargin -= mResizeHandleHeight / 2;
-
-		addView(newrel, l);
+		Log.d("bert","to begin with it is " + mSelectedInnerViewLayoutParams.leftMargin);
+		innerViewLayout.height += mResizeHandleHeight;
+		innerViewLayout.width += mResizeHandleWidth;
+		innerViewLayout.leftMargin = mResizeHandleWidth / 2;
+		innerViewLayout.rightMargin = mResizeHandleWidth / 2;
+		innerViewLayout.topMargin = mResizeHandleHeight / 2;
+		innerViewLayout.bottomMargin = mResizeHandleHeight / 2;
 
 		// set alpha to show which view is in EDIT mode
 		v.setAlpha(0.2f);
 
 		// copy view into inner layout
-		newrel.addView(v, innerViewLayout);
-
-		// inner view which contains the real view
-		innerViewLayout.leftMargin = mResizeHandleWidth / 2;
-		innerViewLayout.topMargin = mResizeHandleWidth / 2;
+		mTempRelativeLayout.addView(v, innerViewLayout);
 
 		// add left Resize image
 		RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -340,9 +379,8 @@ public class MyRelativeLayout extends RelativeLayout {
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
 		ImageView bullet = new ImageView(getContext());
 		bullet.setImageResource(R.drawable.bullet);
-		newrel.addView(bullet, lp2);
+		mTempRelativeLayout.addView(bullet, lp2);
 		mLeftHandle = bullet;
-		
 
 		// add right Resize image
 		lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -351,8 +389,7 @@ public class MyRelativeLayout extends RelativeLayout {
 		bullet = new ImageView(getContext());
 		bullet.setImageResource(R.drawable.bullet);
 		mRightHandle = bullet;
-
-		newrel.addView(bullet, lp2);
+		mTempRelativeLayout.addView(bullet, lp2);
 
 		// add top Resize image
 		lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -360,7 +397,7 @@ public class MyRelativeLayout extends RelativeLayout {
 		lp2.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		bullet = new ImageView(getContext());
 		bullet.setImageResource(R.drawable.bullet);
-		newrel.addView(bullet, lp2);
+		mTempRelativeLayout.addView(bullet, lp2);
 		mTopHandle = bullet;
 
 		// add bottom Resize image
@@ -369,40 +406,53 @@ public class MyRelativeLayout extends RelativeLayout {
 		bullet = new ImageView(getContext());
 		bullet.setImageResource(R.drawable.bullet);
 		lp2.topMargin = viewHeight;
-		newrel.addView(bullet, lp2);
+		mTempRelativeLayout.addView(bullet, lp2);
 		mBottomHandle = bullet;
 
-	
+		
+		RelativeLayout.LayoutParams l = new RelativeLayout.LayoutParams(mSelectedInnerViewLayoutParams);
+		l.width += mResizeHandleWidth;
+		l.height += mResizeHandleHeight;
+		l.rightMargin = -mResizeHandleWidth/2;
+		l.topMargin -= mResizeHandleWidth/2;
+		l.bottomMargin = -mResizeHandleHeight/2;
+		l.leftMargin -= mResizeHandleWidth/2;
+		
+		
+		addView(mTempRelativeLayout, l);
 		requestLayout();
 		invalidate();
 		Log.d("bert", "component " + v + " has been selected");
+		Log.d("bert","IVE PUTTED IT IN TO A RELLATYOUT " + mTempRelativeLayout);
+		Log.d("bert","and the real layout param is leftMargin " + ((RelativeLayout.LayoutParams)mTempRelativeLayout.getLayoutParams()).leftMargin);
 
 	}
 
 	private void viewUnSelect(View v) {
-		// TODO Auto-generated method stub
-
-		// get the size of the used image to get positioning right
-		Drawable d = getResources().getDrawable(mDrawableResize);
-		int w = d.getIntrinsicWidth();
-		int h = d.getIntrinsicHeight();
-
+	
 		View viewInside = mTempRelativeLayout.getChildAt(0);
 		// RelativeLayout.LayoutParams layoutParams = (LayoutParams)
 		// rl.getLayoutParams();
 		// viewInside.setLayoutParams(mSelectedViewLayout);
-		v.setAlpha(1f);
+		viewInside.setAlpha(1f);
 		mTempRelativeLayout.removeAllViews();
 		removeView(mTempRelativeLayout);
-		mSelectedViewLayout.leftMargin = ((LayoutParams) mTempRelativeLayout.getLayoutParams()).leftMargin + w / 2;
-		mSelectedViewLayout.topMargin = ((LayoutParams) mTempRelativeLayout.getLayoutParams()).topMargin + h / 2;
-		addView(viewInside, mSelectedViewLayout);
-		Log.d("bert", "component " + viewInside + " was removed from the rellayout container");
+			
+		mSelectedInnerViewLayoutParams.leftMargin = ((LayoutParams) mTempRelativeLayout.getLayoutParams()).leftMargin + mResizeHandleWidth / 2;
+		mSelectedInnerViewLayoutParams.topMargin = ((LayoutParams) mTempRelativeLayout.getLayoutParams()).topMargin + mResizeHandleHeight / 2;
+		
+		viewInside.setLayoutParams(mSelectedInnerViewLayoutParams);
+		addView(viewInside, mSelectedInnerViewLayoutParams);
+		
+		Log.d("bert","inner view which was unselected is " + viewInside.getLeft());
+		
 
 		// put null in mTempRelativeLayout because 2x clicking upper
 		// relativealyout (this) otherwise crashes
 		mTempRelativeLayout = null;
 		mSelectedView = null;
+		mSelectedInnerViewLayoutParams = null;
+		Log.d("bert", "component " + viewInside + " was removed from the rellayout container");
 
 		requestLayout();
 		invalidate();
@@ -412,21 +462,21 @@ public class MyRelativeLayout extends RelativeLayout {
 		Log.d("bert", "touched " + x + " , " + y);
 		int nbChildren = getChildCount();
 
-		if(mTempRelativeLayout!=null)
-			if(mTempRelativeLayout.getLeft() <= x && x <= mTempRelativeLayout.getRight())
-				if((mTempRelativeLayout.getTop() <= y && y <= mTempRelativeLayout.getBottom()))
-					Log.d("bert","selected clicked");
-			
-		/*
-			Log.d("bert","left handle is on posisiont " + mLeftHandle.getLeft() + " en y " + mLeftHandle.getTop());
-			if(mLeftHandle.getLeft() <= x && x <= mLeftHandle.getRight()){
-				if((mLeftHandle.getTop() <= y && y <= mLeftHandle.getBottom())){
-					Log.d("bert","BONSU BOSNUS");
-					return mLeftHandle;
+		if (mTempRelativeLayout != null)
+			if (mTempRelativeLayout.getLeft() <= x && x <= mTempRelativeLayout.getRight())
+				if ((mTempRelativeLayout.getTop() <= y && y <= mTempRelativeLayout.getBottom())) {
+					Log.d("bert", "selected clicked");
+					if (checkHandlePress(mLeftHandle, x, y))
+						return mLeftHandle;
+					else if (checkHandlePress(mRightHandle, x, y))
+						return mRightHandle;
+					else if (checkHandlePress(mTopHandle, x, y))
+						return mTopHandle;
+					else if (checkHandlePress(mBottomHandle, x, y))
+						return mBottomHandle;
+
 				}
-			}
-		*/
-		
+
 		for (int i = 0; i < nbChildren; i++) {
 			View v = getChildAt(i);
 
@@ -439,5 +489,18 @@ public class MyRelativeLayout extends RelativeLayout {
 		return null;
 	}
 
-	
+	private boolean checkHandlePress(View handle, int x, int y) {
+		Log.d("bert", "left handle is on posisiont " + handle.getLeft() + " en y " + handle.getTop());
+		if (handle.getLeft() <= (x - mTempRelativeLayout.getLeft())
+				&& (x - mTempRelativeLayout.getLeft()) <= handle.getRight()) {
+			if ((handle.getTop() <= (y - mTempRelativeLayout.getTop()) && (y - mTempRelativeLayout.getTop()) <= handle
+					.getBottom())) {
+				Log.d("bert", "BONSU BOSNUS");
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 }
