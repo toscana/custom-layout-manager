@@ -46,33 +46,15 @@ public class MainActivity extends Activity {
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,600,600,1024,1024);
-		/*
+		c.addView(b,600,600,800,800);
+		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,100,100,200,200);
+		c.addView(b,800,800,900,900);
 		
-		
-		b = new TextView(this);
-		//b.setPadding(0,0,0,0);
-		b.setText("Test TextView4");
-		b.setBackgroundColor(Color.RED);
-		c.addView(b,300,300,500,500);
-		
-		b = new TextView(this);
-	//	b.setPadding(0,0,0,0);
-		b.setText("Test TextView5");
-		b.setBackgroundColor(Color.RED);
-		c.addView(b,600,600,800,800);
-		
-		Button s = new Button(this);
-		//b.setPadding(0,0,0,0);
-		b.setText("Test TextView5");
-		b.setBackgroundColor(Color.RED);
-		c.addView(s,800,800,1600,1600);
-		
+	
 		
 		
 		
@@ -80,11 +62,11 @@ public class MainActivity extends Activity {
 	            initChart();
 	            addSampleData();
 	            mChart = ChartFactory.getCubeLineChartView(this, mDataset, mRenderer, 0.3f);
-	            c.addView(mChart,1000,1000,1500,1300);
+	            c.addView(mChart,1000,1000,1100,1100);
 	        } else {
 	            mChart.repaint();
 	        }
-		*/
+		
 		setContentView(c);
 	}
 

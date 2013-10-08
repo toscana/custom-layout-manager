@@ -199,9 +199,13 @@ public class MyRelativeLayout extends RelativeLayout {
 		 * + layout.topMargin);
 		 */
 		
-		Log.d("bert","leftmargi" + layout.leftMargin); Log.d("bert","topmarg" + layout.topMargin);
-
+		Log.d("bert","leftmargi" + layout.leftMargin);
+		Log.d("bert","topmarg" + layout.topMargin);
+		requestLayout();
+		invalidate();
 		snapOnMove(x, y, layout);
+		
+	
 
 		// stop snapping part for all other elements on the
 		// screen
@@ -212,22 +216,40 @@ public class MyRelativeLayout extends RelativeLayout {
 	}
 
 	private void snapOnMove(int x, int y, LayoutParams layout) {
+		Log.d("bert","start of Move: LEFT " + layout.leftMargin + "TOP " + layout.topMargin);
 		// Start snapping part in surrounding rectangle
 		// (surrounding
 		// relativelayout)
-		if (layout.topMargin - mSnapDistance <= 0) 
+		if (layout.topMargin - mSnapDistance <= 0) {
 			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getTop() - mResizeHandleHeight / 2;
+			Log.d("bert","snap1");
+		}
 		
-		if (layout.topMargin + layout.height >= ((ViewGroup) mTempRelativeLayout.getParent()).getBottom() - mSnapDistance)
-			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getBottom() - mTempRelativeLayout.getHeight()
+		if (layout.topMargin + layout.height >= ((ViewGroup) mTempRelativeLayout.getParent()).getBottom() - mSnapDistance){
+			//int height = layout.height;
+			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getBottom() - layout.height
 					+ mResizeHandleHeight / 2;
+			
+			Log.d("bert","snap2");
+			Log.d("bert","((ViewGroup) mTempRelativeLayout.getParent()).getBottom()" + ((ViewGroup) mTempRelativeLayout.getParent()).getBottom());
+			Log.d("bert","- mTempRelativeLayout.getHeight()" + - layout.height);
+			
+			
+		}
 
-		if (layout.leftMargin - mSnapDistance <= 0) 
+		if (layout.leftMargin - mSnapDistance <= 0){ 
 			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getLeft() - mResizeHandleWidth / 2;
+			Log.d("bert","snap3");
+		}
 		
-		if (layout.leftMargin+layout.width >= ((ViewGroup) mTempRelativeLayout.getParent()).getRight() - mSnapDistance) 
-			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getRight() - mTempRelativeLayout.getWidth()
+		if (layout.leftMargin+layout.width >= ((ViewGroup) mTempRelativeLayout.getParent()).getRight() - mSnapDistance){ 
+			int width = layout.width;
+			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getRight() - width
 					+ mResizeHandleWidth / 2;
+			
+			
+			Log.d("bert","snap4");
+		}
 		
 		// Stop snapping part for surrounding relativelayout
 
@@ -240,18 +262,23 @@ public class MyRelativeLayout extends RelativeLayout {
 			if (other != mTempRelativeLayout && viewsAdjacent(mTempRelativeLayout, other)) {
 				if (Math.abs(layout.topMargin - other.getBottom()) <= mResizeHandleHeight / 2) {
 					layout.topMargin = other.getBottom() - mResizeHandleHeight / 2;
+					Log.d("bert","snap 5");
 				}
 				if (Math.abs(layout.topMargin + mTempRelativeLayout.getHeight() - other.getTop()) <= mSnapDistance) {
 					layout.topMargin = other.getTop() - mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
+					Log.d("bert","snap 6");
 				}
 				if (Math.abs(layout.leftMargin - other.getRight()) <= mSnapDistance) {
 					layout.leftMargin = other.getRight() - mResizeHandleWidth / 2;
+					Log.d("bert","snap 7");
 				}
 				if (Math.abs(layout.leftMargin + mTempRelativeLayout.getWidth() - other.getLeft()) <= mSnapDistance) {
 					layout.leftMargin = other.getLeft() - mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
+					Log.d("bert","snap 8");
 				}
 			}
 		}
+		Log.d("bert","end of Move: LEFT " + layout.leftMargin + "TOP " + layout.topMargin);
 	}
 
 	private void resizeView(int x, int y, View v) {
@@ -335,9 +362,9 @@ public class MyRelativeLayout extends RelativeLayout {
 					}
 				}
 			}
+		
 			
-			
-		} else if (v == mRightHandle) {
+		} else if (v == mRightHandle ) {
 			Log.d("bert","resize 4");
 			RelativeLayout.LayoutParams params = ((RelativeLayout.LayoutParams) mTempRelativeLayout.getLayoutParams());
 			((RelativeLayout.LayoutParams) mRightHandle.getLayoutParams()).leftMargin += x - (params.leftMargin + params.width);
