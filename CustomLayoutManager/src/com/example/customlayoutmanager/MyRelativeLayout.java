@@ -30,9 +30,6 @@ public class MyRelativeLayout extends RelativeLayout {
 	private View mSelectedView = null;
 	private LayoutParams mSelectedInnerViewLayoutParams;
 
-	private boolean mSnappedHoriz;
-	private boolean mSnappedVert;
-
 	private int mXSnapPosition;
 	private int mYSnapPosition;
 
@@ -112,8 +109,7 @@ public class MyRelativeLayout extends RelativeLayout {
 						viewUnSelect(mTempRelativeLayout);
 				} else if (v != mLeftHandle && v != mRightHandle && v != mTopHandle && v != mBottomHandle) {
 					// user clicked on normal view inside relativelayout
-					mSnappedHoriz = false;
-					mSnappedVert = false;
+				
 					mDx = v.getLeft() - x - mResizeHandleWidth / 2;
 					mDy = v.getTop() - y - mResizeHandleHeight / 2;
 
@@ -156,8 +152,7 @@ public class MyRelativeLayout extends RelativeLayout {
 			case (MotionEvent.ACTION_UP):
 				Log.d("bert", "ACTION UP");
 				mResizing = false;
-				mSnappedHoriz = false;
-				mSnappedVert = false;
+			
 				// mPressed = false;
 				mDx = 0;
 				mDy = 0;
@@ -207,33 +202,6 @@ public class MyRelativeLayout extends RelativeLayout {
 	}
 
 	private void snapOnMove(int x, int y, LayoutParams layout) {
-		// start unsnapping if possible
-		if (mSnappedVert) {
-			if (Math.abs(mYSnapPosition - y) > mUnsnapDistance) {
-				Log.d("bert", "vertical unsnapping");
-				mSnappedVert = false;
-				layout.topMargin = y + mDy;
-				mTopHandle.setVisibility(View.VISIBLE);
-				mBottomHandle.setVisibility(View.VISIBLE);
-				this.requestLayout();
-				this.invalidate();
-				return;
-			}
-		}
-
-		if (mSnappedHoriz) {
-			if (Math.abs(mXSnapPosition - x) > mUnsnapDistance) {
-				Log.d("bert", "horizontal unsnapping");
-				mSnappedHoriz = false;
-				layout.leftMargin = x + mDx;
-				mLeftHandle.setVisibility(View.VISIBLE);
-				mRightHandle.setVisibility(View.VISIBLE);
-				this.requestLayout();
-				this.invalidate();
-				return;
-			}
-		}
-
 		// Start snapping part in surrounding rectangle
 		// (surrounding
 		// relativelayout)
@@ -241,9 +209,7 @@ public class MyRelativeLayout extends RelativeLayout {
 
 			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getTop() - mResizeHandleHeight / 2;
 			//mTopHandle.setVisibility(View.INVISIBLE);
-			if (!mSnappedVert)
-				mYSnapPosition = y;
-			mSnappedVert = true;
+			
 			Log.d("bert","snap1");
 			Log.d("bert","gettop is " + mTempRelativeLayout.getTop());
 			Log.d("bert","gettopbetter is " + layout.topMargin);
@@ -253,18 +219,14 @@ public class MyRelativeLayout extends RelativeLayout {
 			layout.topMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getBottom() - mTempRelativeLayout.getHeight()
 					+ mResizeHandleHeight / 2;
 			//mBottomHandle.setVisibility(View.INVISIBLE);
-			if (!mSnappedVert)
-				mYSnapPosition = y;
-			mSnappedVert = true;
+			
 			Log.d("bert","snap2");
 		}
 
 		if (layout.leftMargin - mSnapDistance <= 0) {
 			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getLeft() - mResizeHandleWidth / 2;
 			//mLeftHandle.setVisibility(View.INVISIBLE);
-			if (!mSnappedHoriz)
-				mXSnapPosition = x;
-			mSnappedHoriz = true;
+		
 			Log.d("bert","snap3");
 			Log.d("bert","getleft is " + mTempRelativeLayout.getLeft());
 		}
@@ -272,9 +234,7 @@ public class MyRelativeLayout extends RelativeLayout {
 			//mRightHandle.setVisibility(View.INVISIBLE);
 			layout.leftMargin = ((ViewGroup) mTempRelativeLayout.getParent()).getRight() - mTempRelativeLayout.getWidth()
 					+ mResizeHandleWidth / 2;
-			if (!mSnappedHoriz)
-				mXSnapPosition = x;
-			mSnappedHoriz = true;
+			
 			 Log.d("bert","snap4");
 		}
 		// Stop snapping part for surrounding relativelayout
@@ -289,9 +249,7 @@ public class MyRelativeLayout extends RelativeLayout {
 				if (Math.abs(layout.topMargin - other.getBottom()) <= mResizeHandleHeight / 2) {
 					layout.topMargin = other.getBottom() - mResizeHandleHeight / 2;
 					//mTopHandle.setVisibility(View.INVISIBLE);
-					if (!mSnappedVert)
-						mYSnapPosition = y;
-					mSnappedVert = true;
+					
 					// break;
 					 Log.d("bert","snap 5");
 				}
@@ -310,9 +268,7 @@ public class MyRelativeLayout extends RelativeLayout {
 
 					layout.topMargin = other.getTop() - mTempRelativeLayout.getHeight() + mResizeHandleHeight / 2;
 					//mBottomHandle.setVisibility(View.INVISIBLE);
-					if (!mSnappedVert)
-						mYSnapPosition = y;
-					mSnappedVert = true;
+					
 					//break;
 
 				}
@@ -320,18 +276,14 @@ public class MyRelativeLayout extends RelativeLayout {
 				if (Math.abs(layout.leftMargin - other.getRight()) <= mSnapDistance) {
 					layout.leftMargin = other.getRight() - mResizeHandleWidth / 2;
 					//mLeftHandle.setVisibility(View.INVISIBLE);
-					if (!mSnappedHoriz)
-						mXSnapPosition = x;
-					mSnappedHoriz = true;
+					
 					// break;
 					Log.d("bert","snap 7");
 				}
 				if (Math.abs(layout.leftMargin + mTempRelativeLayout.getWidth() - other.getLeft()) <= mSnapDistance) {
 					//mRightHandle.setVisibility(View.INVISIBLE);
 					layout.leftMargin = other.getLeft() - mTempRelativeLayout.getWidth() + mResizeHandleWidth / 2;
-					if (!mSnappedHoriz)
-						mXSnapPosition = x;
-					mSnappedHoriz = true;
+				
 					// break;
 					
 					  Log.d("bert","snap 8 onto " + other);
