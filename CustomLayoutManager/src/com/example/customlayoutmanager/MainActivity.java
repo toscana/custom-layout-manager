@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,600,600,1500,1500);
+		c.addView(b,600,600,1024,1024);
 		/*
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
