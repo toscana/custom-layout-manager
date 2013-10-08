@@ -231,8 +231,6 @@ public class MyRelativeLayout extends RelativeLayout {
 					+ mResizeHandleHeight / 2;
 			
 			Log.d("bert","snap2");
-			Log.d("bert","((ViewGroup) mTempRelativeLayout.getParent()).getBottom()" + ((ViewGroup) mTempRelativeLayout.getParent()).getBottom());
-			Log.d("bert","- mTempRelativeLayout.getHeight()" + - layout.height);
 			
 			
 		}

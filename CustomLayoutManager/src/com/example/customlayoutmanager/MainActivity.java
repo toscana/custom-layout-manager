@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,800,800,900,900);
+		c.addView(b,800,800,1000,1000);
 		
 	
 		
@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
 	            initChart();
 	            addSampleData();
 	            mChart = ChartFactory.getCubeLineChartView(this, mDataset, mRenderer, 0.3f);
-	            c.addView(mChart,1000,1000,1100,1100);
+	            c.addView(mChart,1000,1000,1200,1200);
 	        } else {
 	            mChart.repaint();
 	        }
