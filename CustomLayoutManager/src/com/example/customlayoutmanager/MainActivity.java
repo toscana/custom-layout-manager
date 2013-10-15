@@ -62,13 +62,13 @@ public class MainActivity extends Activity {
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
-		b.setBackgroundColor(Color.RED);
+		b.setBackgroundColor(Color.BLUE);
 		mCustomLayout.addView(b,600,600,800,800);
 		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
-		b.setBackgroundColor(Color.RED);
+		b.setBackgroundColor(Color.GREEN);
 		mCustomLayout.addView(b,800,800,1000,1000);
 		
 		
