@@ -65,7 +65,13 @@ public class MyRelativeLayout extends RelativeLayout {
 	}
 
 	public void setLayoutEditable(boolean layoutIsEditable) {
+		if(mSelectedView != null)
+			viewUnSelect(mSelectedView);
 		mEditViewMode = layoutIsEditable;
+	}
+	
+	public boolean isLayoutEditable(){
+		return mEditViewMode;
 	}
 
 	public void addView(View v, int left, int top, int right, int bottom) throws IllegalArgumentException {
@@ -82,6 +88,7 @@ public class MyRelativeLayout extends RelativeLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
+		if(mEditViewMode){
 
 		int pointerCount = ev.getPointerCount();
 		if (pointerCount == 2 && mSelectedView != null) {
@@ -187,6 +194,7 @@ public class MyRelativeLayout extends RelativeLayout {
 				return super.onTouchEvent(ev);
 			}
 
+		}
 		}
 		return super.onTouchEvent(ev);
 		// return false;

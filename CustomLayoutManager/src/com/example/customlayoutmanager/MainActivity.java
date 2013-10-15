@@ -11,9 +11,14 @@ import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebChromeClient.CustomViewCallback;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TextView;
 
@@ -31,46 +36,53 @@ public class MainActivity extends Activity {
 
 	    private XYSeriesRenderer mCurrentRenderer;
 
+	    private MyRelativeLayout mCustomLayout;
+	    
+	    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.activity_main);
-		MyRelativeLayout c = new MyRelativeLayout(this,R.drawable.bullet);
-		c.setLayoutEditable(true);
+		mCustomLayout = new MyRelativeLayout(this,R.drawable.bullet);
+		mCustomLayout.setLayoutEditable(true);
 		TextView b = new TextView(this);
 		//b.setPadding(0,0,0,0);
-		b.setText("Test TextView");
+		b.setText("BERTIE BERTIE");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,300,300,600,600);
+		mCustomLayout.addView(b,300,300,600,600);
+		b.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Log.d("jos","view clicked");
+			}
+		});
 		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView2");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,600,600,800,800);
+		mCustomLayout.addView(b,600,600,800,800);
 		
 		b = new TextView(this);
 		//b.setPadding(0,0,0,0);
 		b.setText("Test TextView3");
 		b.setBackgroundColor(Color.RED);
-		c.addView(b,800,800,1000,1000);
-		
-	
-		
+		mCustomLayout.addView(b,800,800,1000,1000);
 		
 		
 		 if (mChart == null) {
 	            initChart();
 	            addSampleData();
 	            mChart = ChartFactory.getCubeLineChartView(this, mDataset, mRenderer, 0.3f);
-	            c.addView(mChart,1000,1000,1200,1200);
+	            mCustomLayout.addView(mChart,1000,1000,1200,1200);
 	        } else {
 	            mChart.repaint();
 	        }
 		
-		 ActionBar actionBar = getActionBar();
-		 actionBar.hide();
-		setContentView(c);
+		 
+		setContentView(mCustomLayout);
 	}
 
 	@Override
@@ -95,7 +107,33 @@ public class MainActivity extends Activity {
         mCurrentSeries.add(4, 5);
         mCurrentSeries.add(5, 4);
     }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.guimode:
+            	mCustomLayout.setLayoutEditable(!mCustomLayout.isLayoutEditable());
+            	Log.d("bert","layout not editable anymore");
+            	invalidateOptionsMenu();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+		MenuItem i = menu.findItem(R.id.guimode);
+		if(mCustomLayout.isLayoutEditable())
+			i.setIcon(R.drawable.device_access_dial_pad);
+		else
+			i.setIcon(R.drawable.device_access_dial_pad_closed);
+		return super.onPrepareOptionsMenu(menu);
+	}
+    
+    
   
 
 }
