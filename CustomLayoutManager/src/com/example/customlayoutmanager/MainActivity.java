@@ -8,6 +8,7 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Color;
 import android.view.Menu;
@@ -67,6 +68,8 @@ public class MainActivity extends Activity {
 	            mChart.repaint();
 	        }
 		
+		 ActionBar actionBar = getActionBar();
+		 actionBar.hide();
 		setContentView(c);
 	}
 

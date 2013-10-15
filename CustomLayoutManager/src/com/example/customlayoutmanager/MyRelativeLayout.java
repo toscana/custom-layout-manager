@@ -15,7 +15,6 @@ import android.widget.TextView;
 public class MyRelativeLayout extends RelativeLayout {
 
 	private int mSnapDistance;
-	private int mUnsnapDistance;
 	
 	private int mDx;
 	private int mDy;
@@ -36,9 +35,6 @@ public class MyRelativeLayout extends RelativeLayout {
 	private View mSelectedView = null;
 	private LayoutParams mSelectedInnerViewLayoutParams;
 
-	private int mXSnapPosition;
-	private int mYSnapPosition;
-
 	// 4 images used for handles in the selected view
 	private View mTopHandle;
 	private View mLeftHandle;
@@ -48,6 +44,8 @@ public class MyRelativeLayout extends RelativeLayout {
 	// check if resizing
 	private boolean mResizing;
 	private View mSelectedResizeHandle;
+
+	private boolean mMoving;
 
 	public MyRelativeLayout(Context context, int drawableResize) {
 		super(context);
@@ -59,8 +57,11 @@ public class MyRelativeLayout extends RelativeLayout {
 		// TODO Auto-generated constructor stub
 
 		mResizing = false;
-		mSnapDistance = 25;
-		mUnsnapDistance = 40;
+		//added mMoving in order to get rid of strange behavior where a move action suddenly becomes
+		//a resize action because the selected view is snapped onto another object and the press
+		//change to a location where there is a resize handle
+		mMoving = false;
+		mSnapDistance = 30;
 	}
 
 	public void setLayoutEditable(boolean layoutIsEditable) {
@@ -133,12 +134,12 @@ public class MyRelativeLayout extends RelativeLayout {
 				// Log.d("bert","move move move");
 				if (mTempRelativeLayout != null) {
 
-					if (mResizing) {
+					if (mResizing && !mMoving) {
 						// Log.d("bert", "handles pressed");
 						resizeView(x, y, mSelectedResizeHandle);
 						mResizing = true;
 
-					} else if (v == mLeftHandle || v == mRightHandle || v == mTopHandle || v == mBottomHandle) {
+					} else if (!mMoving && (v == mLeftHandle || v == mRightHandle || v == mTopHandle || v == mBottomHandle)) {
 						// Log.d("bert", "handles pressed");
 						mViewToResizeBottom = mTempRelativeLayout.getBottom();
 						mViewToResizeTop = mTempRelativeLayout.getTop();
@@ -152,6 +153,7 @@ public class MyRelativeLayout extends RelativeLayout {
 					else {
 						Log.d("bert", "MOVING");
 						moveView(x, y);
+						mMoving = true;
 					}
 
 					this.requestLayout();
@@ -162,6 +164,7 @@ public class MyRelativeLayout extends RelativeLayout {
 			case (MotionEvent.ACTION_UP):
 				Log.d("bert", "ACTION UP");
 				mResizing = false;
+				mMoving = false;
 			
 				// mPressed = false;
 				mDx = 0;
